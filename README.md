@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hackathon Portal - Setup Guide
 
-## Getting Started
+Hey! Here is the code for the Hackathon Portal. Follow these simple steps to get the website running on your local machine.
 
-First, run the development server:
+## Prerequisites
+
+1.  **Node.js**: Make sure you have [Node.js](https://nodejs.org/) installed on your computer.
+
+## How to Run the Website
+
+### Step 1: Open the Project
+Open your Terminal (Mac/Linux) or Command Prompt / PowerShell (Windows) and navigate into this exact folder (where this README is located).
+
+### Step 2: Install Dependencies
+Run the following command to download all the code libraries the project needs:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Step 3: Check Environment Variables
+Make sure the `.env.local` file is present in this folder. This file contains the private Firebase database keys. 
+**If it's missing, ask me to send it to you!** *(Without this file, the login, database, and website won't work).*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Step 4: Start the Server
+Once everything is installed, start the website by running:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx next dev
+```
 
-## Learn More
+### Step 5: View the Website
+Open your web browser and go to: **[http://localhost:3000](http://localhost:3000)**
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pages in the App
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If you want to check out specific parts of the website, here are the main routes:
+- **Home/Landing (`/`)**: The main screen with the countdown and leaderboard.
+- **Admin Panel (`/admin`)**: The control center for managing the hackathon. 
+- **Evaluator Panel (`/evaluator`)**: The portal where judges can score different teams.
+- **Participant Dashboard (`/dashboard`)**: Where the hackathon teams can see their tasks and progress.

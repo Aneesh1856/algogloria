@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-navy: #002D62;
+  --accent-yellow: #FFC300;
+  --page-bg: #e0e0e0;
+  --text-dark: #333333;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--text-dark);
+}
+
+@layer components {
+  /* Button Styles handled in Button.tsx */
+  
+  .card-container {
+    @apply bg-white border border-amity-border rounded-none shadow-amity transition-all duration-300;
+  }
+
+  .card-container:hover {
+    @apply -translate-y-0.5 shadow-[0_6px_25px_rgba(0,0,0,0.2)];
+  }
+
+  .card-header-primary {
+    @apply bg-amity-navy text-white p-4 font-bold uppercase tracking-wider;
+  }
+
+  .card-header-accent {
+    @apply bg-amity-yellow text-amity-navy p-4 font-bold uppercase tracking-wider;
+  }
+
+  /* Table Styles */
+  .amity-table-container {
+    @apply bg-white border border-amity-border rounded-none overflow-hidden;
+  }
+
+  .amity-table {
+    @apply w-full text-left border-collapse;
+  }
+
+  .amity-table th {
+    @apply bg-amity-navy text-white font-semibold p-[15px] uppercase text-xs tracking-wider;
+  }
+
+  .amity-table td {
+    @apply p-[15px] border-b border-amity-border text-sm;
+  }
+
+  .amity-table tr:hover {
+    @apply bg-[#f8f9fa];
+  }
+
+  /* Status Badges */
+  .badge-active {
+    @apply bg-amity-activeBg text-amity-activeText px-4 py-1 rounded-pill text-[10px] font-bold uppercase tracking-widest;
+  }
+
+  .badge-inactive {
+    @apply bg-amity-inactiveBg text-amity-inactiveText px-4 py-1 rounded-pill text-[10px] font-bold uppercase tracking-widest;
+  }
+}

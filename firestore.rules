@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper Functions ────────────────────────────────────────────────────
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    function isEligibleParticipant(teamData) {
+      return teamData.isExternalEligible == true && teamData.isVerified == true;
+    }
+
+
+    // ─── Admin: Full access to everything ───────────────────────────────────
+    match /{document=**} {
+      allow read, write: if
+        request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+
+    // ─── Teams ───────────────────────────────────────────────────────────────
+    match /teams/{teamId} {
+      // Leaders and members of verified eligible teams can read their own team
+      allow read: if
+        request.auth != null &&
+        (resource.data.leader_id == request.auth.uid ||
+         request.auth.uid in resource.data.members) &&
+        resource.data.isVerified == true;
+
+      // Leaders of verified eligible teams can write (e.g. lock-in, update team name)
+      allow write: if
+        request.auth != null &&
+        resource.data.leader_id == request.auth.uid &&
+        resource.data.isVerified == true;
+
+      // Admins can update (approve, promote, lock) any team — covered by wildcard above
+    }
+
+
+    // ─── Users ───────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Any authenticated user can read and write their own user document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+
+    // ─── Problems ────────────────────────────────────────────────────────────
+    match /problems/{problemId} {
+      // All authenticated users can read problem statements
+      allow read: if request.auth != null;
+      // Only admins can create/update/delete — covered by wildcard admin rule above
+    }
+
+
+    // ─── Evaluations ─────────────────────────────────────────────────────────
+    match /evaluations/{evaluationId} {
+      // Evaluators can write evaluations
+      allow write: if
+        request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "evaluator";
+
+      // Evaluators and admins can read evaluations (admin covered by wildcard)
+      allow read: if
+        request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "evaluator";
+    }
+
+
+    // ─── Settings ────────────────────────────────────────────────────────────
+    match /settings/{settingId} {
+      // All authenticated users can read portal settings (countdown, schedule, etc.)
+      allow read: if request.auth != null;
+      // Only admins can write — covered by wildcard admin rule above
+    }
+
+  }
+}
