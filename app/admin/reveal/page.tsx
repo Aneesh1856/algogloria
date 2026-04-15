@@ -33,8 +33,8 @@ export default function RevealPage() {
     }
   }, [loading, user, appUser, router]);
 
-  const isReleased = activeTab === "internal" 
-    ? portalSettings?.internalStatementsReleased 
+  const isReleased = activeTab === "internal"
+    ? portalSettings?.internalStatementsReleased
     : portalSettings?.externalStatementsReleased;
 
 
@@ -65,7 +65,7 @@ export default function RevealPage() {
       await updateDoc(doc(db, "settings", "portal"), {
         [field]: false
       });
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     } finally {
       setIsRevealing(false);
@@ -77,7 +77,7 @@ export default function RevealPage() {
       <div className="min-h-screen bg-[#f4f7f6] flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-gray-200 border-t-[#002D62] rounded-full animate-spin"></div>
         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest animate-pulse">
-           {!user || appUser?.role !== "admin" ? "Verifying Credentials..." : "Initializing Panel..."}
+          {!user || appUser?.role !== "admin" ? "Verifying Credentials..." : "Initializing Panel..."}
         </p>
       </div>
     );
@@ -86,38 +86,35 @@ export default function RevealPage() {
   return (
     <div className="min-h-screen bg-[#f4f7f6] text-[#002D62] flex flex-col font-outfit overflow-hidden relative">
       <div className="absolute inset-0 bg-[#002D62] opacity-[0.03] pattern-grid-lg pointer-events-none"></div>
-      
+
       {/* Dynamic Background Glow */}
-      <div 
-        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[600px] max-h-[600px] rounded-full blur-[100px] transition-all duration-1000 ${
-          isReleased ? 'bg-green-400/40 scale-150' : 'bg-[#FFC300]/30 scale-100'
-        }`}
+      <div
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[600px] max-h-[600px] rounded-full blur-[100px] transition-all duration-1000 ${isReleased ? 'bg-green-400/40 scale-150' : 'bg-[#FFC300]/30 scale-100'
+          }`}
       ></div>
 
       {/* Header */}
       <div className="pt-12 pb-6 px-6 relative z-10 flex flex-col items-center">
         <div className="w-16 h-1 bg-[#FFC300] mb-6"></div>
         <h1 className="text-3xl font-black uppercase tracking-[0.2em] text-center mb-2 text-[#002D62]">
-          Operation<span className="text-gray-400">_</span>
+          PROBLEM STATEMENT<span className="text-gray-400"> </span>
         </h1>
         <h2 className="text-xl font-bold text-gray-500 tracking-wider">REVEAL</h2>
       </div>
 
       {/* Tabs */}
       <div className="flex px-6 space-x-4 mb-auto relative z-10 mx-auto w-full max-w-sm">
-        <button 
+        <button
           onClick={() => setActiveTab("internal")}
-          className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${
-            activeTab === "internal" ? "border-[#FFC300] text-[#002D62]" : "border-gray-300 text-gray-400"
-          }`}
+          className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === "internal" ? "border-[#FFC300] text-[#002D62]" : "border-gray-300 text-gray-400"
+            }`}
         >
           Internal
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab("external")}
-          className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${
-            activeTab === "external" ? "border-[#FFC300] text-[#002D62]" : "border-gray-300 text-gray-400"
-          }`}
+          className={`flex-1 py-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === "external" ? "border-[#FFC300] text-[#002D62]" : "border-gray-300 text-gray-400"
+            }`}
         >
           External
         </button>
@@ -125,7 +122,7 @@ export default function RevealPage() {
 
       {/* Centerpiece Button */}
       <div className="flex-1 flex flex-col items-center justify-center relative z-10 pb-20">
-        
+
         {isReleased ? (
           <div className="text-center animate-in fade-in zoom-in duration-500">
             <div className="w-32 h-32 mx-auto bg-green-500/10 border-2 border-green-500/50 rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(34,197,94,0.3)]">
@@ -137,8 +134,8 @@ export default function RevealPage() {
             <p className="text-xs text-green-400 font-bold uppercase tracking-[0.2em] mb-12">
               {activeTab} statements are live
             </p>
-            
-            <button 
+
+            <button
               onClick={executeHide}
               className="px-6 py-2 border border-gray-300 text-gray-500 text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-colors"
             >
@@ -154,7 +151,7 @@ export default function RevealPage() {
             >
               {/* Outer Ring */}
               <div className="absolute inset-0 border-4 border-[#002D62] rounded-full opacity-10"></div>
-              
+
               {/* Inner Button */}
               <div className="absolute inset-4 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 bg-gradient-to-br from-[#FFC300] to-orange-400">
                 <span className="font-black uppercase tracking-widest text-xl text-[#002D62]">
@@ -171,7 +168,7 @@ export default function RevealPage() {
       </div>
 
       <div className="absolute bottom-6 left-0 right-0 flex justify-center">
-        <button 
+        <button
           onClick={() => router.push("/admin")}
           className="text-[10px] text-gray-500 font-bold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2"
         >
