@@ -94,10 +94,13 @@ export default function RevealPage() {
     }
   };
 
-  if (loading || !portalSettings) {
+  if (loading || !user || appUser?.role !== "admin" || !portalSettings) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-600 border-t-[#FFC300] rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-gray-800 border-t-[#FFC300] rounded-full animate-spin"></div>
+        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest animate-pulse">
+           {!user || appUser?.role !== "admin" ? "Verifying Credentials..." : "Initializing Panel..."}
+        </p>
       </div>
     );
   }
