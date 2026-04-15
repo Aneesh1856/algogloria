@@ -100,6 +100,8 @@ interface PortalSettings {
   targetDate: string;
   internalStatementsReleased?: boolean;
   externalStatementsReleased?: boolean;
+  internalRegistrationsOpen?: boolean;
+  externalRegistrationsOpen?: boolean;
 }
 
 export default function AdminPage() {
@@ -129,6 +131,8 @@ export default function AdminPage() {
     targetDate: "2026-04-16T09:00:00",
     internalStatementsReleased: false,
     externalStatementsReleased: false,
+    internalRegistrationsOpen: true,
+    externalRegistrationsOpen: true,
   });
   const [evalSettings, setEvalSettings] = useState<EvaluationSettings>({
     rounds: [
@@ -1662,6 +1666,32 @@ export default function AdminPage() {
                           className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${portalSettings.externalStatementsReleased ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}
                         >
                           {portalSettings.externalStatementsReleased ? 'RELEASED' : 'STAGED'}
+                        </button>
+                      </div>
+
+                      <div className="bg-white p-6 border border-[#e9ecef] flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] font-black text-[#002D62] uppercase tracking-widest mb-1">Internal Registrations</p>
+                          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Allow Amity students to register</p>
+                        </div>
+                        <button
+                          onClick={() => setPortalSettings({ ...portalSettings, internalRegistrationsOpen: !portalSettings.internalRegistrationsOpen })}
+                          className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${portalSettings.internalRegistrationsOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+                        >
+                          {portalSettings.internalRegistrationsOpen ? 'OPEN' : 'CLOSED'}
+                        </button>
+                      </div>
+
+                      <div className="bg-white p-6 border border-[#e9ecef] flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] font-black text-[#002D62] uppercase tracking-widest mb-1">External Registrations</p>
+                          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Allow other college students to register</p>
+                        </div>
+                        <button
+                          onClick={() => setPortalSettings({ ...portalSettings, externalRegistrationsOpen: !portalSettings.externalRegistrationsOpen })}
+                          className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${portalSettings.externalRegistrationsOpen ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+                        >
+                          {portalSettings.externalRegistrationsOpen ? 'OPEN' : 'CLOSED'}
                         </button>
                       </div>
                     </div>

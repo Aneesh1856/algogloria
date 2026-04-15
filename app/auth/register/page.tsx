@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GlassCard as Card } from "@/components/GlassCard";
 import { Button } from "@/components/Button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/Input";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 import { hashPassword } from "@/lib/authUtils";
-import { doc, getDoc, collection, writeBatch } from "firebase/firestore";
+import { doc, getDoc, collection, writeBatch, onSnapshot } from "firebase/firestore";
 
 type Step = 1 | 2 | 3;
 
@@ -20,6 +20,16 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
 
   const [participantType, setParticipantType] = useState<"internal" | "external">("internal");
+  const [portalSettings, setPortalSettings] = useState<any>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "portal"), (docSnap) => {
+      if (docSnap.exists()) {
+        setPortalSettings(docSnap.data());
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Form States
   const [enrollmentNo, setEnrollmentNo] = useState("");
@@ -105,6 +115,17 @@ export default function RegisterPage() {
 
   const handleStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if registration is open
+    if (participantType === "internal" && portalSettings?.internalRegistrationsOpen === false) {
+      setError("Internal registrations are currently closed.");
+      return;
+    }
+    if (participantType === "external" && portalSettings?.externalRegistrationsOpen === false) {
+      setError("External registrations are currently closed.");
+      return;
+    }
+
     setError("");
     setLoading(true);
     try {
@@ -276,7 +297,10 @@ export default function RegisterPage() {
                 <div className="flex bg-gray-100 rounded-lg p-1">
                   <button
                     type="button"
-                    onClick={() => setParticipantType("internal")}
+                    onClick={() => {
+                       setParticipantType("internal");
+                       setError("");
+                    }}
                     className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-md transition-all ${participantType === "internal" ? "bg-[#1a365d] text-white shadow" : "text-gray-500 hover:text-[#1a365d]"
                       }`}
                   >
@@ -284,7 +308,10 @@ export default function RegisterPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setParticipantType("external")}
+                    onClick={() => {
+                       setParticipantType("external");
+                       setError("");
+                    }}
                     className={`flex-1 py-3 text-xs font-black uppercase tracking-widest rounded-md transition-all ${participantType === "external" ? "bg-[#f5a623] text-[#1a365d] shadow" : "text-gray-500 hover:text-[#f5a623]"
                       }`}
                   >
@@ -293,8 +320,23 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <Input
-                label={participantType === "internal" ? "Enrollment Number" : "Email Address"}
+              {((participantType === "internal" && portalSettings?.internalRegistrationsOpen === false) ||
+                (participantType === "external" && portalSettings?.externalRegistrationsOpen === false)) ? (
+                <div className="bg-red-50 border border-red-200 text-red-600 p-6 rounded-md text-center">
+                  <p className="font-bold text-lg mb-2">Registrations Closed 🔒</p>
+                  <p className="text-sm">
+                    {participantType === "internal" 
+                      ? "Registration for Amity students is not open at this time." 
+                      : "Registration for external participants is not open at this time."}
+                  </p>
+                  <div className="mt-4">
+                    <Button variant="outline" type="button" onClick={() => router.push("/")}>Return Home</Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    label={participantType === "internal" ? "Enrollment Number" : "Email Address"}
                 placeholder={participantType === "internal" ? "e.g. A81234xxxxxx" : "e.g. abc@gmail.com"}
                 value={enrollmentNo}
                 onChange={(e) => setEnrollmentNo(e.target.value)}
@@ -312,6 +354,8 @@ export default function RegisterPage() {
                 <Button variant="outline" type="button" onClick={() => router.push("/auth")} fullWidth>Back</Button>
                 <Button type="submit" fullWidth disabled={loading}>Next</Button>
               </div>
+              </>
+            )}
             </form>
           )}
 
