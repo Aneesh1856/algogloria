@@ -37,12 +37,6 @@ export default function RevealPage() {
     ? portalSettings?.internalStatementsReleased 
     : portalSettings?.externalStatementsReleased;
 
-  // Single press logic handler
-  const handleRevealClick = () => {
-    if (confirm(`Authorize release for ${activeTab.toUpperCase()} problem statements?`)) {
-      executeReveal();
-    }
-  };
 
   const executeReveal = async () => {
     setIsRevealing(true);
@@ -152,11 +146,11 @@ export default function RevealPage() {
             </button>
           </div>
         ) : (
-          <div className="text-center mt-12 pb-8">
+          <div className="text-center flex flex-col items-center justify-center">
             <button
-              onClick={handleRevealClick}
+              onClick={executeReveal}
               disabled={isRevealing}
-              className="relative group w-48 h-48 rounded-full flex items-center justify-center outline-none transition-transform duration-300 hover:scale-105 active:scale-95"
+              className="relative group w-48 h-48 rounded-full flex items-center justify-center outline-none transition-transform duration-300 hover:scale-105 active:scale-95 mx-auto"
             >
               {/* Outer Ring */}
               <div className="absolute inset-0 border-4 border-[#002D62] rounded-full opacity-10"></div>
