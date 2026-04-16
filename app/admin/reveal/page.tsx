@@ -42,9 +42,17 @@ export default function RevealPage() {
     setIsRevealing(true);
     try {
       const field = activeTab === "internal" ? "internalStatementsReleased" : "externalStatementsReleased";
-      await updateDoc(doc(db, "settings", "portal"), {
+      
+      const updateData: any = {
         [field]: true
-      });
+      };
+
+      // Set the start time only if it hasn't been set yet (first reveal)
+      if (!portalSettings?.internalStatementsReleased && !portalSettings?.externalStatementsReleased) {
+        updateData.hackathonStartTime = Date.now();
+      }
+
+      await updateDoc(doc(db, "settings", "portal"), updateData);
       // Vibrate if available on mobile
       if (typeof window !== "undefined" && window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate([200, 100, 200, 100, 500]);
