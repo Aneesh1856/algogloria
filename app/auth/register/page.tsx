@@ -8,7 +8,7 @@ import { Input } from "@/components/Input";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 import { hashPassword } from "@/lib/authUtils";
-import { doc, getDoc, collection, writeBatch, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, collection, writeBatch, onSnapshot, query, where, getDocs } from "firebase/firestore";
 
 type Step = 1 | 2 | 3;
 
@@ -161,6 +161,16 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
+      const normalizedTeamName = teamName.trim();
+      const teamQuery = query(collection(db, "teams"), where("team_name", "==", normalizedTeamName));
+      const teamSnap = await getDocs(teamQuery);
+
+      if (!teamSnap.empty) {
+        setError(`A squad already operates under the designation "${normalizedTeamName.toUpperCase()}". Please select a unique identity.`);
+        setLoading(false);
+        return;
+      }
+
       const normalizedEnrollment = enrollmentNo.trim().toUpperCase();
       const hashedPassword = await hashPassword(password);
 

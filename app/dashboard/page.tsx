@@ -120,7 +120,22 @@ export default function DashboardPage() {
         setSuccess("");
         setError("");
         try {
-            await updateDoc(doc(db, "teams", team.id), { team_name: newTeamName.trim() });
+            const normalizedName = newTeamName.trim();
+            
+            // Check for uniqueness
+            const teamQuery = query(collection(db, "teams"), where("team_name", "==", normalizedName));
+            const teamSnap = await getDocs(teamQuery);
+            
+            // If any team found that isn't THIS team
+            const isDuplicate = teamSnap.docs.some(d => d.id !== team.id);
+            
+            if (isDuplicate) {
+                setError(`Designation "${normalizedName.toUpperCase()}" is already assigned to another sector.`);
+                setUpdating(false);
+                return;
+            }
+
+            await updateDoc(doc(db, "teams", team.id), { team_name: normalizedName });
             setSuccess("UPDATED");
             setTimeout(() => setSuccess(""), 2000);
         } catch (err: any) {
