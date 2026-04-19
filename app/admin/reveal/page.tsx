@@ -47,8 +47,8 @@ export default function RevealPage() {
         [field]: true
       };
 
-      // Set the start time only if it hasn't been set yet (first reveal)
-      if (!portalSettings?.internalStatementsReleased && !portalSettings?.externalStatementsReleased) {
+      // Set the start time when external statements are released, or if it hasn't been set yet
+      if ((activeTab === "external" && !portalSettings?.externalStatementsReleased) || !portalSettings?.hackathonStartTime) {
         updateData.hackathonStartTime = Date.now();
       }
 
