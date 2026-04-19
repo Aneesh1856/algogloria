@@ -9,6 +9,7 @@ import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 interface PortalSettings {
   internalStatementsReleased?: boolean;
   externalStatementsReleased?: boolean;
+  hackathonStartTime?: number;
 }
 
 export default function RevealPage() {
