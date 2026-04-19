@@ -115,6 +115,7 @@ export default function AdminPage() {
   const [rawEvaluations, setRawEvaluations] = useState<Evaluation[]>([]);
   const [activeTab, setActiveTab] = useState("teams");
   const [teamsFilter, setTeamsFilter] = useState<"all" | "inhouse" | "external">("all");
+  const [showOnlyFinalists, setShowOnlyFinalists] = useState(true);
   const [fetching, setFetching] = useState(true);
   const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
 
@@ -1102,8 +1103,26 @@ export default function AdminPage() {
 
           {activeTab === "leaderboard" && (
             <Card headerType="primary" headerText="Field Performance Rankings" className="!p-0 border-none">
+              <div className="bg-white border-b border-[#e9ecef] px-6 py-4 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="h-4 w-1 bg-[#FFC300]"></div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#002D62]">Ranking Filter</span>
+                </div>
+                <button 
+                  onClick={() => setShowOnlyFinalists(!showOnlyFinalists)}
+                  className={`flex items-center gap-3 px-4 py-2 transition-all border-2 ${showOnlyFinalists ? 'bg-[#002D62] border-[#002D62] text-white' : 'bg-white border-[#e9ecef] text-[#002D62] hover:border-[#002D62]'}`}
+                >
+                  <div className={`w-3 h-3 border ${showOnlyFinalists ? 'bg-[#FFC300] border-[#FFC300]' : 'bg-gray-100 border-gray-300'}`}></div>
+                  <span className="text-[9px] font-black uppercase tracking-widest">
+                    {showOnlyFinalists ? "ONLY EXTERNAL FINALISTS" : "SHOW ALL PARTICIPANTS"}
+                  </span>
+                </button>
+              </div>
               <div className="block md:hidden space-y-4 p-4 bg-[#f8f9fa]">
-                {[...teams].sort((a, b) => (b.scores?.total || 0) - (a.scores?.total || 0)).map((t, i) => (
+                {[...teams]
+                  .filter(t => !showOnlyFinalists || t.competition_phase === "external")
+                  .sort((a, b) => (b.scores?.total || 0) - (a.scores?.total || 0))
+                  .map((t, i) => (
                   <div key={t.id} className="bg-white rounded-none p-4 shadow-sm border border-[#e9ecef]">
                     <div className="flex justify-between items-start mb-3 border-b border-[#e9ecef] pb-3">
                       <div className="flex items-center gap-3">
@@ -1115,6 +1134,9 @@ export default function AdminPage() {
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t.problem_statement_id || "NOT ASSIGNED"}</p>
                         </div>
                       </div>
+                      {t.competition_phase === "external" && (
+                        <span className="bg-blue-50 text-blue-600 text-[8px] font-black px-1.5 py-0.5 uppercase tracking-tighter">External</span>
+                      )}
                     </div>
                     <div className="grid grid-cols-4 gap-2 text-center mb-3">
                       <div><span className="block text-[9px] font-bold text-gray-400 uppercase">Inn</span><span className="font-mono font-bold text-gray-600 text-xs">{t.scores?.innovation.toFixed(1) || "0.0"}</span></div>
@@ -1124,6 +1146,9 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))}
+                {[...teams].filter(t => !showOnlyFinalists || t.competition_phase === "external").length === 0 && (
+                  <div className="py-20 text-center font-bold text-gray-400 uppercase tracking-widest text-xs bg-white">No teams match selected criteria.</div>
+                )}
               </div>
               <div className="hidden md:block overflow-x-auto">
                 <table className="amity-table">
@@ -1138,7 +1163,10 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[...teams].sort((a, b) => (b.scores?.total || 0) - (a.scores?.total || 0)).map((t, i) => (
+                    {[...teams]
+                      .filter(t => !showOnlyFinalists || t.competition_phase === "external")
+                      .sort((a, b) => (b.scores?.total || 0) - (a.scores?.total || 0))
+                      .map((t, i) => (
                       <tr key={t.id} className="border-b border-[#e9ecef] hover:bg-gray-50">
                         <td className="px-10 py-6 text-center">
                           <span className={`w-8 h-8 flex items-center justify-center rounded-sm font-black text-sm ${i < 3 ? 'bg-[#FFC300] text-[#002D62]' : 'bg-[#002D62] text-white'}`}>
@@ -1146,8 +1174,15 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="py-6">
-                          <p className="font-bold text-[#002D62] uppercase">{t.team_name}</p>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t.problem_statement_id || "NOT ASSIGNED"}</p>
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <p className="font-bold text-[#002D62] uppercase leading-none">{t.team_name}</p>
+                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{t.problem_statement_id || "NOT ASSIGNED"}</p>
+                            </div>
+                            {t.competition_phase === "external" && (
+                              <span className="bg-blue-50 text-blue-600 text-[8px] font-black px-1.5 py-0.5 uppercase tracking-tighter">External</span>
+                            )}
+                          </div>
                         </td>
                         <td className="text-center font-mono font-bold text-gray-600">{t.scores?.innovation.toFixed(1) || "0.0"}</td>
                         <td className="text-center font-mono font-bold text-gray-600">{t.scores?.tech.toFixed(1) || "0.0"}</td>
@@ -1159,6 +1194,11 @@ export default function AdminPage() {
                         </td>
                       </tr>
                     ))}
+                    {[...teams].filter(t => !showOnlyFinalists || t.competition_phase === "external").length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="py-20 text-center font-bold text-gray-400 uppercase tracking-widest bg-white">No teams match selected criteria.</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
