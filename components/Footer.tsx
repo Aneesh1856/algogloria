@@ -13,7 +13,7 @@ const Footer = () => {
           </p>
           <div className="hidden md:block w-[1px] h-3 bg-white/10"></div>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] whitespace-nowrap">
-            Build by <span className="text-[#FFC300]">Aneesh Prakash Dhavade</span>, Technical Lead
+            Built by <span className="text-[#FFC300]">Aneesh Prakash Dhavade</span>, Technical Lead
           </p>
         </div>
 

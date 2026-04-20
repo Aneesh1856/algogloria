@@ -49,69 +49,9 @@ export default function RegisterPage() {
   const [teamName, setTeamName] = useState("");
   const [members, setMembers] = useState<string[]>([""]);
 
-  // Payment gate for external participants
-  const [hasPaid, setHasPaid] = useState(false);
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
-  const [paymentId, setPaymentId] = useState("");
 
-  const handlePayment = useCallback(async () => {
-    setPaymentProcessing(true);
-    setError("");
-    try {
-      // Load Razorpay script dynamically
-      const scriptLoaded = await new Promise<boolean>((resolve) => {
-        if ((window as any).Razorpay) { resolve(true); return; }
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.onload = () => resolve(true);
-        script.onerror = () => resolve(false);
-        document.body.appendChild(script);
-      });
 
-      if (!scriptLoaded) {
-        setError("Failed to load payment gateway. Please check your internet connection and try again.");
-        setPaymentProcessing(false);
-        return;
-      }
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
-        amount: 50000, // ₹500 in paise
-        currency: "INR",
-        name: "AlgoGLORiA Hackathon",
-        description: "External Team Registration Fee",
-        image: "/logo.png",
-        handler: function (response: any) {
-          setHasPaid(true);
-          setPaymentId(response.razorpay_payment_id || "PAY_" + Date.now());
-          setPaymentProcessing(false);
-        },
-        prefill: {
-          name: `${firstName} ${lastName}`,
-          email: enrollmentNo.includes("@") ? enrollmentNo : "",
-          contact: mobile,
-        },
-        theme: {
-          color: "#1a365d",
-        },
-        modal: {
-          ondismiss: function () {
-            setPaymentProcessing(false);
-          },
-        },
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on("payment.failed", function (response: any) {
-        setError("Payment failed: " + (response.error?.description || "Unknown error"));
-        setPaymentProcessing(false);
-      });
-      rzp.open();
-    } catch (err: any) {
-      setError("Payment error: " + err.message);
-      setPaymentProcessing(false);
-    }
-  }, [firstName, lastName, enrollmentNo, mobile]);
 
   const handleStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,8 +137,6 @@ export default function RegisterPage() {
         teamPayload.competition_phase = "external";
         teamPayload.isExternalEligible = true;
         teamPayload.isVerified = true;
-        teamPayload.paymentId = paymentId;
-        teamPayload.paymentAmount = 500;
       }
 
       batch.set(newTeamRef, teamPayload);
@@ -467,88 +405,16 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              {/* Payment Gate — External participants only */}
-              {participantType === "external" && (
-                <div className="mt-2 rounded-xl border-2 overflow-hidden" style={{ borderColor: hasPaid ? '#22c55e' : '#e5e7eb' }}>
-                  {/* Header */}
-                  <div className="px-4 py-3 flex items-center justify-between" style={{ background: hasPaid ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' : 'linear-gradient(135deg, #1a365d 0%, #2d4a7a 100%)' }}>
-                    <div className="flex items-center gap-2">
-                      {hasPaid ? (
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      ) : (
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                      )}
-                      <span className="text-white text-xs font-black uppercase tracking-widest">
-                        {hasPaid ? "Payment Complete" : "Registration Fee"}
-                      </span>
-                    </div>
-                    {hasPaid && (
-                      <span className="text-white/80 text-[10px] font-mono">{paymentId}</span>
-                    )}
-                  </div>
 
-                  {/* Body */}
-                  <div className="p-4 bg-white">
-                    {hasPaid ? (
-                      <div className="text-center py-2">
-                        <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2">
-                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                          <span className="text-green-700 text-xs font-bold">₹500 paid successfully</span>
-                        </div>
-                        <p className="text-gray-400 text-[10px] mt-2">You can now complete your registration</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center justify-between mb-3 pb-3 border-b border-dashed border-gray-200">
-                          <span className="text-gray-500 text-xs">Team Registration Fee</span>
-                          <span className="text-[#1a365d] text-sm font-black">₹1000.00</span>
-                        </div>
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-gray-500 text-xs">Covers entire team (up to 4 members)</span>
-                          <span className="text-gray-400 text-[10px] uppercase tracking-wider">One-time</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handlePayment}
-                          disabled={paymentProcessing}
-                          className="w-full py-3 rounded-lg text-white text-xs font-black uppercase tracking-widest transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                          style={{ background: 'linear-gradient(135deg, #f5a623 0%, #e09400 100%)' }}
-                        >
-                          {paymentProcessing ? (
-                            <span className="flex items-center justify-center gap-2">
-                              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                              Processing...
-                            </span>
-                          ) : (
-                            <span className="flex items-center justify-center gap-2">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                              Pay ₹500 Registration Fee
-                            </span>
-                          )}
-                        </button>
-                        <p className="text-center text-gray-400 text-[10px] mt-2 flex items-center justify-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                          Secured by Razorpay
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
 
               <div className="pt-4 flex flex-col sm:flex-row gap-3">
                 <Button variant="outline" type="button" onClick={() => setStep(2)} fullWidth disabled={loading}>Back</Button>
-                <Button type="submit" fullWidth disabled={loading || (participantType === "external" && !hasPaid)}>
+                <Button type="submit" fullWidth disabled={loading}>
                   {loading ? "Registering..." : "Finish Registration"}
                 </Button>
               </div>
 
-              {/* Hint when payment not done */}
-              {participantType === "external" && !hasPaid && (
-                <p className="text-center text-amber-600 text-[10px] font-bold animate-pulse">
-                  ⚠ Please complete the payment above to enable registration
-                </p>
-              )}
+
             </form>
           )}
         </Card>
